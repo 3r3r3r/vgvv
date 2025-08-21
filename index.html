@@ -2931,6 +2931,429 @@
         padding-right: calc((100% - 480px)/2 + 12px);
       }
     }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: #000;
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    touch-action: manipulation;
+}
+
+.logo {
+    margin: 30px 0;
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 5px;
+    color: #fff;
+    text-align: center;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.logo::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%);
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.review-form {
+    background-color: #1c1c1e;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.review-form.hiding {
+    animation: fadeOutUp 0.5s ease-in forwards;
+}
+
+.review-form h2 {
+    font-size: 22px;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    position: relative;
+}
+
+textarea {
+    width: 100%;
+    background-color: #2c2c2e;
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    color: #fff;
+    font-size: 16px;
+    resize: none;
+    min-height: 120px;
+    transition: all 0.2s;
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+textarea:focus {
+    outline: none;
+    background-color: #3a3a3c;
+}
+
+.char-count {
+    position: absolute;
+    bottom: 10px;
+    right: 15px;
+    font-size: 12px;
+    color: #8e8e93;
+}
+
+.submit-btn {
+    background-color: #fff;
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: block;
+    margin-left: auto;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.submit-btn:hover {
+    background-color: #e6e6e6;
+    transform: scale(1.05);
+}
+
+.submit-btn:active {
+    transform: scale(0.95);
+}
+
+.submit-btn:disabled {
+    background-color: #8e8e93;
+    cursor: not-allowed;
+    transform: scale(1);
+}
+
+.reviews-container {
+    width: 100%;
+}
+
+.review {
+    background-color: #1c1c1e;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    animation: fadeIn 0.5s ease-out;
+    display: flex;
+    align-items: flex-start;
+    transition: transform 0.3s;
+}
+
+.review:hover {
+    transform: translateY(-2px);
+}
+
+.avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #555, #333);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 20px;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.review-content {
+    flex: 1;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.review-date {
+    color: #8e8e93;
+    font-size: 14px;
+}
+
+.review-text {
+    line-height: 1.5;
+    color: #e5e5e7;
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background-color: #34c759;
+    color: #000;
+    padding: 12px 25px;
+    border-radius: 10px;
+    font-weight: 500;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out forwards, fadeOut 0.3s ease-in 2.7s forwards;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.limit-notification {
+    background-color: #ff453a;
+    color: #fff;
+}
+
+.thank-you-message {
+    text-align: center;
+    padding: 30px;
+    background-color: #1c1c1e;
+    border-radius: 14px;
+    margin-bottom: 30px;
+    animation: fadeIn 0.8s ease-out;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.thank-you-message i {
+    font-size: 48px;
+    color: #34c759;
+    margin-bottom: 15px;
+}
+
+.thank-you-message h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.thank-you-message p {
+    color: #8e8e93;
+    line-height: 1.5;
+}
+
+.refresh-btn {
+    background-color: #2c2c2e;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto 20px;
+}
+
+.refresh-btn:hover {
+    background-color: #3a3a3c;
+}
+
+.refresh-btn:active {
+    transform: scale(0.95);
+}
+
+.sync-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #8e8e93;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.sync-indicator .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #34c759;
+    animation: pulse 1.5s infinite;
+}
+
+.sync-indicator .dot:nth-child(2) {
+    animation-delay: 0.5s;
+}
+
+.sync-indicator .dot:nth-child(3) {
+    animation-delay: 1s;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOutUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+        display: none;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-50%) translateY(-100px);
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 0;
+    color: #8e8e93;
+    animation: fadeIn 1s ease-out;
+}
+
+.empty-state i {
+    font-size: 50px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.error-message {
+    color: #ff453a;
+    font-size: 14px;
+    margin-top: 5px;
+    display: none;
+}
+
+.shake {
+    animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-3px); }
+    40%, 60% { transform: translateX(3px); }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 15px;
+    }
+    
+    .logo {
+        font-size: 22px;
+        margin: 20px 0;
+    }
+    
+    .review-form, .review, .thank-you-message {
+        border-radius: 12px;
+    }
+    
+    .review-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+input, textarea, select {
+    font-size: 16px;
+}
+
+.tg-back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: #1c1c1e;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 100;
+}
   </style>
 </head>
 <body>
@@ -3089,9 +3512,7 @@
       </div>
 
       <div class="button-block">
-        <a href="https://t.me/FOLLENSHAIDbot?startapp=0bff92cd6d10d69a" target="_blank" style="text-decoration: none;">
-          <button type="button" onclick="triggerVibration()">Отзывы о Follen & Shaid</button>
-        </a>
+        <button type="button" onclick="hideReviewsPage()">Отзывы о Follen & Shaid</button>
         <a href="https://t.me/FOllENSHAID_bot" target="_blank" style="text-decoration: none;">
           <button type="button" onclick="triggerVibration()">Связь с поддержкой</button>
         </a>
@@ -3579,6 +4000,44 @@
     <button class="payment-pay" onclick="hideSuccessModal()">OK</button>
   </div>
 </div>
+
+  <div class="tg-back-button" onclick="window.history.back()">
+        <i class="fas fa-arrow-left"></i>
+    </div>
+    
+    <div class="logo">FOLLEN & SHAID</div>
+    
+    <div class="container">
+        <div id="form-container">
+            <div class="review-form" id="review-form">
+                <h2>Оставьте ваш отзыв</h2>
+                <div class="form-group">
+                    <textarea placeholder="Поделитесь вашим мнением..." id="review-text" maxlength="500"></textarea>
+                    <div class="char-count"><span id="char-remaining">500</span> осталось</div>
+                    <div class="error-message" id="profanity-error">Пожалуйста, избегайте нецензурной лексики в отзывах</div>
+                </div>
+                <button class="submit-btn" id="submit-review">Отправить</button>
+            </div>
+        </div>
+        
+        <div class="sync-indicator">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <span>Синхронизация с Telegram Cloud</span>
+        </div>
+        
+        <button class="refresh-btn" id="refresh-btn">
+            <i class="fas fa-sync-alt"></i> Обновить отзывы
+        </button>
+        
+        <div class="reviews-container" id="reviews-container">
+            <div class="empty-state">
+                <i class="far fa-comments"></i>
+                <p>Загрузка отзывов...</p>
+            </div>
+        </div>
+    </div>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -4099,6 +4558,12 @@ function showProfilePage() {
 
 function hideProfilePage() {
   document.getElementById('profile-page').style.display = 'none';
+  document.getElementById('cabinet-page').style.display = 'block';
+  triggerVibration();
+}
+
+function hideReviewsPage() {
+  document.getElementById('expenses-page').style.display = 'none';
   document.getElementById('cabinet-page').style.display = 'block';
   triggerVibration();
 }
@@ -5456,7 +5921,7 @@ document.addEventListener('touchend', function(event) {
   lastTouchEnd = now;
 }, false);
 
-// ===== ОБЪЕДИНЕННАЯ СИСТЕМА СВАЙПОВ БЕЗ АНИМАЦИЙ =====
+// ===== ОБЪЕДИНЕННАЯ СИСТЕМА СВАЙПОВ С АНИМАЦИЯМИ IPHONE =====
 let touchStartX = 0;
 let touchStartY = 0;
 let isHorizontalSwipe = false;
@@ -5465,6 +5930,13 @@ let productsPageVisible = false;
 const SWIPE_THRESHOLD = 50;
 const productsPage = document.getElementById('products-page');
 const bottomNav = document.querySelector('.bottom-nav');
+
+// Анимационные настройки в стиле iOS
+const IOS_ANIMATION = {
+  duration: 400,
+  easing: 'cubic-bezier(0.23, 1, 0.32, 1)', // iOS easing curve
+  opacity: true
+};
 
 // Функция для определения направления свайпа
 function handleSwipeGesture(currentPage, touchEndX, touchEndY) {
@@ -5476,19 +5948,19 @@ function handleSwipeGesture(currentPage, touchEndX, touchEndY) {
     if (diffX > 0) {
       // Свайп вправо
       if (currentPage === 'main-page') {
-        showPage(cabinetPage);
+        animatePageTransition(mainPage, cabinetPage, 'right-to-left');
         updateActiveNav(document.getElementById('cabinet-nav-item'));
       } else if (currentPage === 'storage-page') {
-        showPage(mainPage);
+        animatePageTransition(storagePage, mainPage, 'right-to-left');
         updateActiveNav(null);
       }
     } else {
       // Свайп влево
       if (currentPage === 'main-page') {
-        showPage(storagePage);
+        animatePageTransition(mainPage, storagePage, 'left-to-right');
         updateActiveNav(document.getElementById('storage-nav-item'));
       } else if (currentPage === 'cabinet-page') {
-        showPage(mainPage);
+        animatePageTransition(cabinetPage, mainPage, 'left-to-right');
         updateActiveNav(null);
       }
     }
@@ -5502,36 +5974,111 @@ function handleSwipeGesture(currentPage, touchEndX, touchEndY) {
   }
 }
 
-// Функция для показа страницы товаров
+// Анимация перехода между страницами
+function animatePageTransition(fromPage, toPage, direction) {
+  // Устанавливаем начальные стили для анимации
+  toPage.style.display = 'block';
+  toPage.style.willChange = 'transform, opacity';
+  toPage.style.transition = 'none';
+  
+  // Позиционируем страницы для анимации
+  if (direction === 'left-to-right') {
+    toPage.style.transform = 'translateX(-100%)';
+    fromPage.style.transform = 'translateX(0)';
+  } else { // right-to-left
+    toPage.style.transform = 'translateX(100%)';
+    fromPage.style.transform = 'translateX(0)';
+  }
+  
+  // Принудительный reflow
+  toPage.offsetHeight;
+  
+  // Устанавливаем transition
+  toPage.style.transition = `transform ${IOS_ANIMATION.duration}ms ${IOS_ANIMATION.easing}, opacity ${IOS_ANIMATION.duration}ms ${IOS_ANIMATION.easing}`;
+  fromPage.style.transition = `transform ${IOS_ANIMATION.duration}ms ${IOS_ANIMATION.easing}, opacity ${IOS_ANIMATION.duration}ms ${IOS_ANIMATION.easing}`;
+  
+  // Запускаем анимацию
+  requestAnimationFrame(() => {
+    if (direction === 'left-to-right') {
+      toPage.style.transform = 'translateX(0)';
+      fromPage.style.transform = 'translateX(100%)';
+    } else {
+      toPage.style.transform = 'translateX(0)';
+      fromPage.style.transform = 'translateX(-100%)';
+    }
+    
+    // Добавляем легкое затемнение уходящей страницы
+    fromPage.style.opacity = '0.8';
+  });
+  
+  // Очищаем стили после анимации
+  setTimeout(() => {
+    fromPage.style.display = 'none';
+    fromPage.style.transform = 'translateX(0)';
+    fromPage.style.opacity = '1';
+    fromPage.style.transition = '';
+    toPage.style.transform = 'translateX(0)';
+    toPage.style.willChange = '';
+    toPage.style.transition = '';
+  }, IOS_ANIMATION.duration);
+}
+
+// Функция для показа страницы товаров с анимацией iOS
 function showProductsPage() {
   productsPageVisible = true;
-  bottomNav.style.transition = 'transform 0.4s cubic-bezier(0.28, 0.11, 0.32, 1)';
-  bottomNav.style.transform = 'translateY(100%)';
-  productsPage.style.display = 'block';
-  productsPage.style.opacity = '0';
-  productsPage.style.transform = 'translateY(100%)';
-  productsPage.style.transition = 'transform 0.4s cubic-bezier(0.28, 0.11, 0.32, 1), opacity 0.3s';
   
-  setTimeout(() => {
-    productsPage.style.opacity = '1';
+  // Анимация навигации
+  bottomNav.style.transition = `transform ${IOS_ANIMATION.duration}ms ${IOS_ANIMATION.easing}`;
+  bottomNav.style.transform = 'translateY(100%)';
+  
+  // Анимация страницы товаров
+  productsPage.style.display = 'block';
+  productsPage.style.willChange = 'transform, opacity';
+  productsPage.style.transform = 'translateY(100%)';
+  productsPage.style.opacity = '0';
+  productsPage.style.transition = `transform ${IOS_ANIMATION.duration}ms ${IOS_ANIMATION.easing}, opacity ${IOS_ANIMATION.duration}ms ${IOS_ANIMATION.easing}`;
+  
+  // Запускаем анимацию
+  requestAnimationFrame(() => {
     productsPage.style.transform = 'translateY(0)';
-  }, 10);
+    productsPage.style.opacity = '1';
+  });
+  
+  // Очищаем стили после анимации
+  setTimeout(() => {
+    productsPage.style.willChange = '';
+  }, IOS_ANIMATION.duration);
   
   if (document.getElementById('productsFeed').children.length === 0) {
     loadProductsData();
   }
 }
 
-// Функция для скрытия страницы товаров
+// Функция для скрытия страницы товаров с анимацией iOS
 function hideProductsPage() {
   productsPageVisible = false;
-  productsPage.style.transform = 'translateY(100%)';
-  productsPage.style.opacity = '0';
   
+  productsPage.style.willChange = 'transform, opacity';
+  productsPage.style.transform = 'translateY(0)';
+  productsPage.style.transition = `transform ${IOS_ANIMATION.duration}ms ${IOS_ANIMATION.easing}, opacity ${IOS_ANIMATION.duration}ms ${IOS_ANIMATION.easing}`;
+  
+  // Анимация скрытия
+  requestAnimationFrame(() => {
+    productsPage.style.transform = 'translateY(100%)';
+    productsPage.style.opacity = '0';
+  });
+  
+  // Анимация навигации
+  bottomNav.style.transition = `transform ${IOS_ANIMATION.duration}ms ${IOS_ANIMATION.easing}`;
+  bottomNav.style.transform = 'translateY(0)';
+  
+  // Очистка после анимации
   setTimeout(() => {
     productsPage.style.display = 'none';
-    bottomNav.style.transform = 'translateY(0)';
-  }, 400);
+    productsPage.style.willChange = '';
+    productsPage.style.opacity = '1';
+    productsPage.style.transform = 'translateY(0)';
+  }, IOS_ANIMATION.duration);
 }
 
 // Обработчик начала касания
@@ -5565,10 +6112,13 @@ function handleTouchMove(e) {
     e.preventDefault();
   }
   
-  // Обработка свайпа вниз для закрытия товаров
+  // Обработка свайпа вниз для закрытия товаров с интерактивной анимацией
   if (productsPageVisible && isVerticalSwipe && diffY > 0 && window.scrollY <= 0) {
     e.preventDefault();
-    productsPage.style.opacity = 1 - diffY / 300;
+    const progress = Math.min(diffY / 300, 1);
+    productsPage.style.transform = `translateY(${progress * 100}px)`;
+    productsPage.style.opacity = 1 - progress * 0.5;
+    productsPage.style.transition = 'none'; // Отключаем transition для плавного следования за пальцем
   }
 }
 
@@ -5580,7 +6130,7 @@ function handleTouchEnd(e) {
   const touchEndY = e.changedTouches[0].clientY;
   const diffY = touchEndY - touchStartY;
 
-// Определяем текущую страницу
+  // Определяем текущую страницу
   let currentPage = '';
   if (mainPage.style.display !== 'none') currentPage = 'main-page';
   else if (cabinetPage.style.display !== 'none') currentPage = 'cabinet-page';
@@ -5596,7 +6146,15 @@ function handleTouchEnd(e) {
   if (productsPageVisible && isVerticalSwipe && diffY > 100 && window.scrollY <= 0) {
     hideProductsPage();
   } else if (productsPageVisible && isVerticalSwipe) {
+    // Возвращаем на место если свайп недостаточно сильный
+    productsPage.style.transition = `transform ${IOS_ANIMATION.duration}ms ${IOS_ANIMATION.easing}, opacity ${IOS_ANIMATION.duration}ms ${IOS_ANIMATION.easing}`;
+    productsPage.style.transform = 'translateY(0)';
     productsPage.style.opacity = '1';
+    
+    // Очищаем transition после возврата
+    setTimeout(() => {
+      productsPage.style.transition = '';
+    }, IOS_ANIMATION.duration);
   }
   
   // Сбрасываем начальные координаты
@@ -5621,6 +6179,284 @@ function initSwipeNavigation() {
 
 // Инициализация свайп-навигации после загрузки DOM
 initSwipeNavigation();
+
+// Инициализация Telegram Web App
+let tg = window.Telegram.WebApp;
+tg.expand();
+tg.enableClosingConfirmation();
+
+// Инициализация данных
+const STORAGE_KEY = 'follen_shaid_reviews';
+
+// Генерация уникального ID пользователя из данных Telegram
+let userId = tg.initDataUnsafe.user?.id.toString() || 'user_' + Math.random().toString(36).substr(2, 9);
+let username = tg.initDataUnsafe.user?.username || 'User_' + userId.substr(0, 4);
+
+const reviewForm = document.getElementById('review-form');
+const reviewText = document.getElementById('review-text');
+const submitBtn = document.getElementById('submit-review');
+const reviewsContainer = document.getElementById('reviews-container');
+const charRemaining = document.getElementById('char-remaining');
+const profanityError = document.getElementById('profanity-error');
+const formContainer = document.getElementById('form-container');
+const refreshBtn = document.getElementById('refresh-btn');
+
+// Список нецензурных слов
+const profanityList = [
+    'бля', 'блять', 'хуй', 'пизда', 'ебал', 'ебать', 'нахер', 
+    'нахрен', 'гондон', 'мудак', 'сука', 'тварь', 'долбаёб'
+];
+
+// Имитация хранения в Telegram Cloud Storage
+// В реальном приложении здесь будут вызовы tg.CloudStorage
+function getCloudStorage() {
+    return new Promise((resolve) => {
+        if (tg && tg.CloudStorage) {
+            tg.CloudStorage.getItem(STORAGE_KEY, (err, value) => {
+                if (err || !value) {
+                    resolve([]);
+                } else {
+                    try {
+                        resolve(JSON.parse(value));
+                    } catch (e) {
+                        resolve([]);
+                    }
+                }
+            });
+        } else {
+            // Fallback для локального тестирования
+            const localData = localStorage.getItem(STORAGE_KEY);
+            resolve(localData ? JSON.parse(localData) : []);
+        }
+    });
+}
+
+function setCloudStorage(data) {
+    return new Promise((resolve) => {
+        const dataStr = JSON.stringify(data);
+        if (tg && tg.CloudStorage) {
+            tg.CloudStorage.setItem(STORAGE_KEY, dataStr, (err) => {
+                if (!err) resolve(true);
+                else resolve(false);
+            });
+        } else {
+            // Fallback для локального тестирования
+            localStorage.setItem(STORAGE_KEY, dataStr);
+            resolve(true);
+        }
+    });
+}
+
+// Запрет масштабирования на странице
+document.addEventListener('touchstart', function(event) {
+    if (event.touches.length > 1) {
+        event.preventDefault();
+    }
+}, { passive: false });
+
+document.addEventListener('gesturestart', function(event) {
+    event.preventDefault();
+});
+
+// Проверяем, оставлял ли пользователь уже отзыв
+const userReviewedKey = `user_reviewed_${userId}`;
+if (localStorage.getItem(userReviewedKey)) {
+    hideFormAndShowThankYou();
+}
+
+// Загружаем существующие отзывы
+loadReviews();
+
+// Обработчик кнопки обновления
+refreshBtn.addEventListener('click', function() {
+    refreshBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Обновление...';
+    loadReviews();
+    setTimeout(() => {
+        refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Обновить отзывы';
+        showNotification('Отзывы обновлены');
+    }, 800);
+});
+
+// Счетчик символов
+reviewText.addEventListener('input', function() {
+    const remaining = 500 - reviewText.value.length;
+    charRemaining.textContent = remaining;
+    
+    if (remaining < 20) {
+        charRemaining.style.color = '#ff453a';
+    } else {
+        charRemaining.style.color = '#8e8e93';
+    }
+});
+
+// Обработчик отправки отзыва
+submitBtn.addEventListener('click', submitReview);
+
+// Обработчик отправки по Enter (с зажатым Ctrl)
+reviewText.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.ctrlKey) {
+        submitReview();
+    }
+});
+
+// Функция отправки отзыва
+async function submitReview() {
+    const text = reviewText.value.trim();
+    
+    if (text === '') {
+        showNotification('Пожалуйста, напишите отзыв', true);
+        reviewText.classList.add('shake');
+        setTimeout(() => reviewText.classList.remove('shake'), 400);
+        return;
+    }
+    
+    // Проверка на нецензурную брань
+    if (containsProfanity(text)) {
+        profanityError.style.display = 'block';
+        reviewText.classList.add('shake');
+        setTimeout(() => {
+            reviewText.classList.remove('shake');
+            setTimeout(() => profanityError.style.display = 'none', 3000);
+        }, 400);
+        return;
+    }
+    
+    if (localStorage.getItem(userReviewedKey)) {
+        showNotification('Вы уже оставили отзыв', true);
+        return;
+    }
+    
+    // Сохраняем отзыв
+    await saveReview(text);
+    
+    // Очищаем текстовое поле
+    reviewText.value = '';
+    charRemaining.textContent = 500;
+    charRemaining.style.color = '#8e8e93';
+    
+    // Показываем уведомление
+    showNotification('Ваш отзыв добавлен!');
+    
+    // Обновляем список отзывов
+    loadReviews();
+    
+    // Скрываем форму и показываем сообщение
+    hideFormAndShowThankYou();
+    
+    // Сохраняем информацию, что пользователь уже оставил отзыв
+    localStorage.setItem(userReviewedKey, 'true');
+}
+
+// Функция скрытия формы и показа благодарности
+function hideFormAndShowThankYou() {
+    // Добавляем класс для анимации скрытия
+    reviewForm.classList.add('hiding');
+    
+    // После завершения анимации скрытия
+    setTimeout(() => {
+        // Заменяем форму на сообщение с благодарностью
+        formContainer.innerHTML = `
+            <div class="thank-you-message">
+                <i class="fas fa-check-circle"></i>
+                <h2>Спасибо за ваш отзыв!</h2>
+                <p>Ваше мнение очень важно для нас.</p>
+            </div>
+        `;
+    }, 500);
+}
+
+// Функция проверки на нецензурную лексику
+function containsProfanity(text) {
+    const lowerText = text.toLowerCase();
+    return profanityList.some(word => lowerText.includes(word));
+}
+
+async function saveReview(text) {
+    // Получаем существующие отзывы
+    let reviews = await getCloudStorage();
+
+    // Создаем новый отзыв
+    const newReview = {
+        id: Date.now(),
+        text: text,
+        date: new Date().toLocaleDateString('ru-RU'),
+        author: username,
+        avatarText: username.charAt(0).toUpperCase(),
+        userId: userId,
+        timestamp: Date.now()
+    };
+    
+    // Добавляем новый отзыв в начало массива
+    reviews.unshift(newReview);
+    
+    // Сохраняем обновленный массив отзывов
+    await setCloudStorage(reviews);
+}
+
+async function loadReviews() {
+    // Получаем отзывы
+    const reviews = await getCloudStorage();
+    
+    // Очищаем контейнер
+    reviewsContainer.innerHTML = '';
+    
+    if (reviews.length === 0) {
+        reviewsContainer.innerHTML = `
+            <div class="empty-state">
+                <i class="far fa-comments"></i>
+                <p>Пока нет отзывов. Будьте первым!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Добавляем каждый отзыв в контейнер
+    reviews.forEach(review => {
+        const reviewElement = document.createElement('div');
+        reviewElement.className = 'review';
+        reviewElement.innerHTML = `
+            <div class="avatar">${review.avatarText}</div>
+            <div class="review-content">
+                <div class="review-header">
+                    <span class="user-name">${review.author}</span>
+                    <span class="review-date">${review.date}</span>
+                </div>
+                <p class="review-text">${review.text}</p>
+            </div>
+        `;
+        
+        // Подсвечиваем собственные отзывы
+        if (review.userId === userId) {
+            reviewElement.style.borderLeft = '3px solid #34c759';
+        }
+        
+        reviewsContainer.appendChild(reviewElement);
+    });
+}
+
+function showNotification(message, isError = false) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${isError ? 'limit-notification' : ''}`;
+    
+    const icon = document.createElement('i');
+    icon.className = isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+    
+    notification.appendChild(icon);
+    notification.appendChild(document.createTextNode(message));
+    
+    document.body.appendChild(notification);
+    
+    // Удаляем уведомление после анимации
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Периодическое обновление отзывов (каждые 15 секунд)
+setInterval(loadReviews, 15000);
+
+// Инициализация при загрузке
+tg.ready();
 </script>
 </body>
 </html>
