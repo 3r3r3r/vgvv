@@ -4866,6 +4866,761 @@ document.addEventListener('DOMContentLoaded', function() {
     initStoragePage();
   }
 });
+
+// ===== КОД СТРАНИЦЫ ПОПОЛНЕНИЯ =====
+let paymentCards = [];
+let selectedCardIndex = 0;
+let exchangeRate = 75;
+
+// Инициализация страницы пополнения
+function initPaymentPage() {
+  loadPaymentCards();
+  setupPaymentEventListeners();
+}
+
+// Загрузка сохраненных карт
+function loadPaymentCards() {
+  const storedCards = localStorage.getItem('paymentCards');
+  paymentCards = storedCards ? JSON.parse(storedCards) : [
+    { 
+      id: '1', 
+      number: '•••• •••• •••• 3456', 
+      holder: 'IVAN IVANOV', 
+      expiry: '09/27', 
+      brand: 'VISA',
+      cvc: '123'
+    }
+  ];
+}
+
+// Настройка обработчиков событий
+function setupPaymentEventListeners() {
+  // Обработчик для кнопки пополнения в каюте
+  const topUpButton = document.querySelector('.cabinet-card .card-header button');
+  if (topUpButton) {
+    topUpButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      showPaymentPage();
+    });
+  }
+
+  // Обработчики для модального окна карты
+  document.getElementById('saveCardBtn')?.addEventListener('click', saveCard);
+  document.getElementById('deleteCardBtn')?.addEventListener('click', deleteCard);
+  document.getElementById('cardNumberInput')?.addEventListener('input', formatCardNumber);
+  document.getElementById('cardExpiryInput')?.addEventListener('input', formatExpiry);
+  
+  // Обработчики быстрых сумм
+  document.querySelectorAll('.payment-quick-amounts button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const amount = parseInt(btn.textContent);
+      setAmount(amount);
+    });
+  });
+
+  // Обработчик ввода суммы
+  document.getElementById('amount-input')?.addEventListener('input', updatePaymentAmounts);
+}
+
+// Инициализация карусели карт
+function initPaymentCarousel() {
+  const carousel = document.getElementById('payment-cards');
+  if (!carousel) return;
+  
+  carousel.innerHTML = '';
+  
+  paymentCards.forEach((card, index) => {
+    const cardElement = document.createElement('div');
+    cardElement.className = 'payment-card-container';
+    cardElement.innerHTML = `
+      <div class="payment-card" data-index="${index}">
+        <div class="payment-card-front">
+          <div class="top">
+            <div class="payment-chip">💳</div>
+            <div class="payment-network">${card.brand}</div>
+          </div>
+          <div class="payment-number">${card.number}</div>
+          <div class="payment-holder">${card.holder} ${card.expiry}</div>
+        </div>
+        <div class="payment-card-back">
+          <div class="payment-card-cvc">${card.cvc}</div>
+        </div>
+      </div>
+    `;
+    carousel.appendChild(cardElement);
+    
+    // Анимация появления
+    setTimeout(() => {
+      cardElement.classList.add('visible');
+    }, index * 100);
+  });
+}
+
+// Форматирование номера карты
+function formatCardNumber(e) {
+  const input = e.target;
+  let value = input.value.replace(/\D/g, '');
+  
+  if (value.length > 16) {
+    value = value.slice(0, 16);
+  }
+  
+  // Добавляем пробелы через каждые 4 цифры
+  const formatted = value.replace(/(\d{4})/g, '$1 ').trim();
+  input.value = formatted;
+  
+  // Определяем бренд карты
+  detectCardBrand(value);
+}
+
+// Форматирование срока действия
+function formatExpiry(e) {
+  const input = e.target;
+  let value = input.value.replace(/\D/g, '');
+  
+  if (value.length > 4) {
+    value = value.slice(0, 4);
+  }
+  
+  if (value.length > 2) {
+    input.value = value.slice(0, 2) + '/' + value.slice(2);
+  } else {
+    input.value = value;
+  }
+}
+
+// Определение бренда карты
+function detectCardBrand(cardNumber) {
+  const brandElement = document.getElementById('cardBrand');
+  if (!brandElement) return;
+  
+  const firstDigit = cardNumber.charAt(0);
+  let brand = '';
+  
+  switch (firstDigit) {
+    case '4': brand = 'VISA'; break;
+    case '5': brand = 'MASTERCARD'; break;
+    case '3': brand = 'AMEX'; break;
+    case '2': brand = 'MIR'; break;
+    default: brand = '';
+  }
+  
+  brandElement.textContent = brand;
+  brandElement.classList.toggle('show', brand !== '');
+}
+
+// Сохранение карты
+function saveCard() {
+  const number = document.getElementById('cardNumberInput').value.trim();
+  const holder = document.getElementById('cardHolderInput').value.trim().toUpperCase();
+  const expiry = document.getElementById('cardExpiryInput').value.trim();
+  const cvc = document.getElementById('cardCvcInput').value.trim();
+  const brand = document.getElementById('cardBrand').textContent || 'UNKNOWN';
+
+  // Валидация
+  if (number.replace(/\D/g, '').length < 16) {
+    alert('Введите корректный номер карты (16 цифр)');
+    return;
+  }
+  
+  if (!holder) {
+    alert('Введите имя держателя карты');
+    return;
+  }
+  
+  if (!expiry || !/^\d{2}\/\d{2}$/.test(expiry)) {
+    alert('Введите срок действия в формате MM/YY');
+    return;
+  }
+  
+  if (!cvc || cvc.length < 3) {
+    alert('Введите корректный CVC/CVV код');
+    return;
+  }
+
+  // Форматируем номер для отображения
+  const maskedNumber = '•••• •••• •••• ' + number.slice(-4);
+  
+  // Создаем новую карту
+  const newCard = {
+    id: Date.now().toString(),
+    number: maskedNumber,
+    holder: holder,
+    expiry: expiry,
+    brand: brand,
+    cvc: cvc,
+    fullNumber: number.replace(/\D/g, '')
+  };
+  
+  // Добавляем карту
+  paymentCards.push(newCard);
+  localStorage.setItem('paymentCards', JSON.stringify(paymentCards));
+  
+  // Обновляем интерфейс
+  initPaymentCarousel();
+  hideAddCardModal();
+  triggerVibration();
+  
+  alert('Карта успешно добавлена!');
+}
+
+// Удаление карты
+function deleteCard() {
+  const number = document.getElementById('cardNumberInput').value.replace(/\D/g, '');
+  const cardIndex = paymentCards.findIndex(card => card.fullNumber === number);
+  
+  if (cardIndex >= 0) {
+    paymentCards.splice(cardIndex, 1);
+    localStorage.setItem('paymentCards', JSON.stringify(paymentCards));
+    initPaymentCarousel();
+    hideAddCardModal();
+    triggerVibration();
+    alert('Карта удалена');
+  } else {
+    alert('Карта не найдена');
+  }
+}
+
+// Установка суммы пополнения
+function setAmount(amount) {
+  document.getElementById('amount-input').value = amount;
+  updatePaymentAmounts();
+  triggerVibration();
+}
+
+// Обновление сумм при изменении ввода
+function updatePaymentAmounts() {
+  const amount = parseFloat(document.getElementById('amount-input').value) || 0;
+  const commissionRate = calculateCommission(amount);
+  const commission = amount * commissionRate;
+  const netAmount = amount - commission;
+  
+  document.getElementById('payment-amount').textContent = `${amount} P`;
+  document.getElementById('commission').textContent = `${(commissionRate * 100).toFixed(1)}%`;
+  document.getElementById('net-amount').textContent = `${netAmount.toFixed(2)} P`;
+}
+
+// Расчет комиссии
+function calculateCommission(amount) {
+  if (amount <= 1000) return 0.03;
+  if (amount <= 5000) return 0.025;
+  return 0.02;
+}
+
+// Голосовой ввод
+function startVoiceInput() {
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'ru-RU';
+    recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript;
+      const amount = parseFloat(transcript.replace(',', '.').replace(/[^\d.]/g, ''));
+      if (!isNaN(amount)) {
+        setAmount(amount);
+      }
+    };
+    recognition.start();
+    triggerVibration();
+  } else {
+    alert('Голосовой ввод не поддерживается вашим браузером');
+  }
+}
+
+// Обработка платежа
+function processPayment() {
+  const amount = parseFloat(document.getElementById('amount-input').value);
+  
+  if (!amount || amount <= 0) {
+    alert('Введите корректную сумму');
+    return;
+  }
+  
+  if (paymentCards.length === 0) {
+    alert('Добавьте карту для оплаты');
+    return;
+  }
+  
+  // Показываем индикатор загрузки
+  const payButton = document.querySelector('.payment-pay');
+  payButton.classList.add('loading');
+  
+  // Имитация процесса оплаты
+  setTimeout(() => {
+    payButton.classList.remove('loading');
+    showPaymentSuccess(amount);
+  }, 2000);
+}
+
+// Показ успешного платежа
+function showPaymentSuccess(amount) {
+  alert(`Платеж на ${amount} P успешно выполнен!`);
+  
+  // Обновляем баланс пользователя
+  updateUserBalance(amount);
+  
+  // Возвращаемся в каюту
+  showPage(cabinetPage);
+}
+
+// Обновление баланса пользователя
+function updateUserBalance(amount) {
+  const currentBalance = parseFloat(localStorage.getItem('userBalance') || '0');
+  const newBalance = currentBalance + amount;
+  localStorage.setItem('userBalance', newBalance.toFixed(2));
+  document.getElementById('balance').textContent = newBalance.toFixed(2);
+}
+
+// Выбор способа оплаты
+function selectPaymentMethod(method) {
+  hidePaymentModal();
+  alert(`Выбран способ оплаты: ${method}`);
+  // Здесь можно добавить логику для разных способов оплаты
+}
+
+// Функции для модального окна карты
+function showCardModal() {
+  document.getElementById('card-modal').classList.add('show');
+  document.getElementById('cardNumberInput').focus();
+  // Очищаем поля при открытии
+  document.getElementById('cardNumberInput').value = '';
+  document.getElementById('cardHolderInput').value = '';
+  document.getElementById('cardExpiryInput').value = '';
+  document.getElementById('cardCvcInput').value = '';
+  document.getElementById('cardBrand').textContent = '';
+  document.getElementById('cardBrand').classList.remove('show');
+  document.getElementById('deleteCardBtn').style.display = 'none';
+  triggerVibration();
+}
+
+function hideAddCardModal() {
+  document.getElementById('card-modal').classList.remove('show');
+}
+
+function hideSuccessModal() {
+  document.getElementById('success-modal').classList.remove('show');
+}
+
+// Обработчики для модального окна карты
+document.getElementById('saveCardBtn').addEventListener('click', saveCard);
+document.getElementById('deleteCardBtn').addEventListener('click', deleteCard);
+document.getElementById('cardNumberInput').addEventListener('input', formatCardNumber);
+document.getElementById('cardExpiryInput').addEventListener('input', formatExpiry);
+
+// Обновите функцию addNewCard
+function addNewCard() {
+  showCardModal();
+}
+
+// Обновите функцию showPaymentModal (другие способы оплаты)
+function showPaymentModal() {
+  document.getElementById('payment-modal').classList.add('show');
+}
+
+function hidePaymentModal() {
+  document.getElementById('payment-modal').classList.remove('show');
+}
+
+// ===== ФУНКЦИИ ДЛЯ СТРАНИЦЫ ТОВАРОВ =====
+const productsData = [
+  { id:1, title:"Часы Premium Black", images:[
+    "https://images.unsplash.com/photo-1524805444758-089113d48a6d?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
+  ], description:"Роскошные черные часы с автоматическим механизмом.", price:24990, category:"watches", rating:4.8, reviews:24 },
+  { id:2, title:"Наушники Pro Sound", images:[
+    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
+  ], description:"Беспроводные наушники с активным шумоподавлением.", price:18990, category:"headphones", rating:4.5, reviews:18 },
+  { id:3, title:"Кольцо Diamond", images:[
+    "https://images.unsplash.com/photo-1605100804763-247f67b3557e?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
+  ], description:"Элегантное серебряное кольцо с бриллиантом.", price:42500, category:"jewelry", rating:4.9, reviews:32 },
+  { id:4, title:"Умные часы Pro", images:[
+    "https://images.unsplash.com/photo-1558379850-823f103f866a?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
+  ], description:"Умные часы с функцией мониторинга здоровья.", price:32990, category:"watches", rating:4.7, reviews:15 },
+  { id:5, title:"Беспроводные наушники Air", images:[
+    "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1578319439584-104c94d37305?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
+  ], description:"Компактные беспроводные наушники.", price:15990, category:"headphones", rating:4.3, reviews:22 },
+  { id:6, title:"Футболка Classic Black", images:[
+    "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1527719327859-c6ce80353573?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
+  ], description:"Классическая черная футболка из 100% хлопка.", price:2990, category:"tshirts", rating:4.2, reviews:45 }
+];
+
+let activeCategory = 'all';
+
+function loadProductsData(category = activeCategory, searchQuery = '') {
+  const loadingSpinner = document.getElementById('loadingSpinner');
+  const productsFeed = document.getElementById('productsFeed');
+  
+  loadingSpinner.style.display = 'block';
+  productsFeed.innerHTML = '';
+  
+  // Имитация загрузки
+  setTimeout(() => {
+    loadingSpinner.style.display = 'none';
+    
+    let filtered = productsData.filter(p => {
+      const matchesCategory = category === 'all' || p.category === category;
+      if (searchQuery.trim() === '') return matchesCategory;
+      
+      const q = searchQuery.toLowerCase();
+      return p.title.toLowerCase().includes(q) || 
+             p.description.toLowerCase().includes(q);
+    });
+    
+    renderProducts(filtered);
+  }, 800);
+}
+
+function renderProducts(productsList) {
+  const productsFeed = document.getElementById('productsFeed');
+  productsFeed.innerHTML = '';
+  
+  if (productsList.length === 0) {
+    document.getElementById('emptyState').style.display = 'block';
+    return;
+  }
+  
+  document.getElementById('emptyState').style.display = 'none';
+  
+  productsList.forEach(product => {
+    const productCard = document.createElement('div');
+    productCard.className = 'product-card';
+    productCard.innerHTML = `
+      <img src="${product.images[0]}" class="product-image" alt="${product.title}">
+      <div class="product-content">
+        <h3 class="product-title">${product.title}</h3>
+        <div class="product-price">${product.price.toLocaleString()} ₽</div>
+      </div>
+    `;
+    productCard.addEventListener('click', () => {
+      // Здесь можно открыть детальную страницу товара
+      alert(`Открываем ${product.title}`);
+    });
+    productsFeed.appendChild(productCard);
+  });
+}
+
+// Инициализация страницы товаров
+document.getElementById('searchInputProducts').addEventListener('input', (e) => {
+  loadProductsData(activeCategory, e.target.value);
+});
+
+document.getElementById('categoriesToggle').addEventListener('click', () => {
+  document.getElementById('categoriesDropdown').classList.toggle('active');
+});
+
+document.getElementById('sortSelect').addEventListener('change', () => {
+  loadProductsData(activeCategory, document.getElementById('searchInputProducts').value);
+});
+
+window.filterProducts = function(category) {
+  activeCategory = category;
+  loadProductsData(category, document.getElementById('searchInputProducts').value);
+  document.getElementById('categoriesDropdown').classList.remove('active');
+};
+
+window.hideProductsPage = hideProductsPage;
+
+// Вспомогательные функции
+function triggerVibration() {
+  if (navigator.vibrate) {
+    navigator.vibrate(50);
+  }
+}
+
+function handleBackButton() {
+  // Логика кнопки "Назад" в Telegram WebApp
+  if (productsPageVisible) {
+    hideProductsPage();
+  } else if (document.getElementById('expenses-page').style.display === 'block') {
+    goBackToCabinet();
+  } else if (document.getElementById('profile-page').style.display === 'block') {
+    hideProfilePage();
+  } else {
+    Telegram.WebApp.close();
+  }
+}
+
+// Переопределяем обработчики для страницы товаров
+function initSwipeHandlers() {
+  // Обработчик свайпа вверх на главной странице (оставляем без изменений)
+  mainPage.addEventListener('touchstart', handleTouchStart, { passive: true });
+  mainPage.addEventListener('touchmove', handleTouchMove, { passive: false });
+  mainPage.addEventListener('touchend', handleTouchEnd);
+  
+  // Новые обработчики для страницы товаров
+  productsPage.addEventListener('touchstart', function(e) {
+    // Разрешаем свайп только если начали с пустой области или товаров
+    const isSwipeArea = !e.target.closest('.products-header') && 
+                       !e.target.closest('.search-container') &&
+                       !e.target.closest('.toolbar') &&
+                       !e.target.closest('.categories-dropdown') &&
+                       !e.target.closest('.segmented') &&
+                       window.scrollY <= 0;
+    
+    if (productsPageVisible && isSwipeArea) {
+      startY = e.touches[0].clientY;
+      productsPage.classList.add('swipe-active');
+    }
+  }, { passive: true });
+
+  productsPage.addEventListener('touchmove', function(e) {
+    if (!productsPageVisible) return;
+    
+    const isSwipeArea = !e.target.closest('.products-header') && 
+                       !e.target.closest('.search-container') &&
+                       !e.target.closest('.toolbar') &&
+                       !e.target.closest('.categories-dropdown') &&
+                       !e.target.closest('.segmented');
+    
+    if (!isSwipeArea) return;
+    
+    currentY = e.touches[0].clientY;
+    const deltaY = currentY - startY;
+    
+    if (window.scrollY <= 0 && deltaY > 0) {
+      e.preventDefault();
+      productsPage.style.opacity = `${1 - deltaY / 300}`;
+    }
+  }, { passive: false });
+
+  productsPage.addEventListener('touchend', function(e) {
+    if (!productsPageVisible) return;
+    
+    const isSwipeArea = !e.target.closest('.products-header') && 
+                       !e.target.closest('.search-container') &&
+                       !e.target.closest('.toolbar') &&
+                       !e.target.closest('.categories-dropdown') &&
+                       !e.target.closest('.segmented');
+    
+    if (!isSwipeArea) {
+      productsPage.classList.remove('swipe-active');
+      productsPage.style.opacity = '1';
+      return;
+    }
+    
+    const deltaY = currentY - startY;
+    productsPage.classList.remove('swipe-active');
+    
+    if (deltaY > 100 && window.scrollY <= 0) {
+      hideProductsPage();
+    } else {
+      productsPage.style.opacity = '1';
+    }
+  });
+}
+
+// Блокировка масштабирования только при мультитаче
+let isScrolling = false;
+
+document.addEventListener('touchstart', function(e) {
+  if (e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// Разрешаем скролл внутри элементов
+document.addEventListener('touchmove', function(e) {
+  const target = e.target;
+  const isScrollable = target.closest('.scrollable');
+  
+  if (!isScrollable && e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// Блокировка жестов масштабирования
+document.addEventListener('gesturestart', function(e) {
+  e.preventDefault();
+});
+
+document.addEventListener('gesturechange', function(e) {
+  e.preventDefault();
+});
+
+// Быстрые тапы (для zoom)
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(event) {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) {
+    const target = event.target;
+    const isScrollable = target.closest('.scrollable');
+    
+    if (!isScrollable) {
+      event.preventDefault();
+    }
+  }
+  lastTouchEnd = now;
+}, false);
+
+// ===== ОБЪЕДИНЕННАЯ СИСТЕМА СВАЙПОВ БЕЗ АНИМАЦИЙ =====
+let touchStartX = 0;
+let touchStartY = 0;
+let isHorizontalSwipe = false;
+let isVerticalSwipe = false;
+let productsPageVisible = false;
+const SWIPE_THRESHOLD = 50;
+const productsPage = document.getElementById('products-page');
+const bottomNav = document.querySelector('.bottom-nav');
+
+// Функция для определения направления свайпа
+function handleSwipeGesture(currentPage, touchEndX, touchEndY) {
+  const diffX = touchEndX - touchStartX;
+  const diffY = touchEndY - touchStartY;
+  
+  if (isHorizontalSwipe && Math.abs(diffX) > SWIPE_THRESHOLD) {
+    // Горизонтальные свайпы для навигации
+    if (diffX > 0) {
+      // Свайп вправо
+      if (currentPage === 'main-page') {
+        showPage(cabinetPage);
+        updateActiveNav(document.getElementById('cabinet-nav-item'));
+      } else if (currentPage === 'storage-page') {
+        showPage(mainPage);
+        updateActiveNav(null);
+      }
+    } else {
+      // Свайп влево
+      if (currentPage === 'main-page') {
+        showPage(storagePage);
+        updateActiveNav(document.getElementById('storage-nav-item'));
+      } else if (currentPage === 'cabinet-page') {
+        showPage(mainPage);
+        updateActiveNav(null);
+      }
+    }
+  } 
+  else if (isVerticalSwipe && Math.abs(diffY) > SWIPE_THRESHOLD) {
+    // Вертикальные свайпы для товаров
+    if (diffY < 0 && currentPage === 'main-page' && window.scrollY <= 0 && !productsPageVisible) {
+      // Свайп вверх на главной → открыть товары
+      showProductsPage();
+    }
+  }
+}
+
+// Функция для показа страницы товаров
+function showProductsPage() {
+  productsPageVisible = true;
+  bottomNav.style.transition = 'transform 0.4s cubic-bezier(0.28, 0.11, 0.32, 1)';
+  bottomNav.style.transform = 'translateY(100%)';
+  productsPage.style.display = 'block';
+  productsPage.style.opacity = '0';
+  productsPage.style.transform = 'translateY(100%)';
+  productsPage.style.transition = 'transform 0.4s cubic-bezier(0.28, 0.11, 0.32, 1), opacity 0.3s';
+  
+  setTimeout(() => {
+    productsPage.style.opacity = '1';
+    productsPage.style.transform = 'translateY(0)';
+  }, 10);
+  
+  if (document.getElementById('productsFeed').children.length === 0) {
+    loadProductsData();
+  }
+}
+
+// Функция для скрытия страницы товаров
+function hideProductsPage() {
+  productsPageVisible = false;
+  productsPage.style.transform = 'translateY(100%)';
+  productsPage.style.opacity = '0';
+  
+  setTimeout(() => {
+    productsPage.style.display = 'none';
+    bottomNav.style.transform = 'translateY(0)';
+  }, 400);
+}
+
+// Обработчик начала касания
+function handleTouchStart(e) {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  isHorizontalSwipe = false;
+  isVerticalSwipe = false;
+}
+
+// Обработчик движения касания
+function handleTouchMove(e) {
+  if (!touchStartX) return;
+  
+  const currentX = e.touches[0].clientX;
+  const currentY = e.touches[0].clientY;
+  const diffX = currentX - touchStartX;
+  const diffY = currentY - touchStartY;
+  
+  // Определяем тип свайпа
+  if (Math.abs(diffX) > Math.abs(diffY)) {
+    isHorizontalSwipe = true;
+    isVerticalSwipe = false;
+  } else {
+    isHorizontalSwipe = false;
+    isVerticalSwipe = true;
+  }
+  
+  // Если это горизонтальный свайп, предотвращаем вертикальную прокрутку
+  if (Math.abs(diffX) > 10 && isHorizontalSwipe) {
+    e.preventDefault();
+  }
+  
+  // Обработка свайпа вниз для закрытия товаров
+  if (productsPageVisible && isVerticalSwipe && diffY > 0 && window.scrollY <= 0) {
+    e.preventDefault();
+    productsPage.style.opacity = 1 - diffY / 300;
+  }
+}
+
+// Обработчик окончания касания
+function handleTouchEnd(e) {
+  if (!touchStartX) return;
+  
+  const touchEndX = e.changedTouches[0].clientX;
+  const touchEndY = e.changedTouches[0].clientY;
+  const diffY = touchEndY - touchStartY;
+
+// Определяем текущую страницу
+  let currentPage = '';
+  if (mainPage.style.display !== 'none') currentPage = 'main-page';
+  else if (cabinetPage.style.display !== 'none') currentPage = 'cabinet-page';
+  else if (storagePage.style.display !== 'none') currentPage = 'storage-page';
+  else if (treasurePage.style.display !== 'none') currentPage = 'treasure-page';
+  
+  // Обрабатываем горизонтальные свайпы
+  if (currentPage && currentPage !== 'treasure-page') {
+    handleSwipeGesture(currentPage, touchEndX, touchEndY);
+  }
+  
+  // Обработка свайпа вниз для закрытия товаров
+  if (productsPageVisible && isVerticalSwipe && diffY > 100 && window.scrollY <= 0) {
+    hideProductsPage();
+  } else if (productsPageVisible && isVerticalSwipe) {
+    productsPage.style.opacity = '1';
+  }
+  
+  // Сбрасываем начальные координаты
+  touchStartX = 0;
+  touchStartY = 0;
+  isHorizontalSwipe = false;
+  isVerticalSwipe = false;
+}
+
+// Добавляем обработчики свайпов ко всем страницам
+function initSwipeNavigation() {
+  const pages = [mainPage, cabinetPage, storagePage, treasurePage, productsPage];
+  
+  pages.forEach(page => {
+    if (page) {
+      page.addEventListener('touchstart', handleTouchStart, { passive: true });
+      page.addEventListener('touchmove', handleTouchMove, { passive: false });
+      page.addEventListener('touchend', handleTouchEnd, { passive: true });
+    }
+  });
+}
+
+// Инициализация свайп-навигации после загрузки DOM
+initSwipeNavigation();
 </script>
 </body>
 </html>
