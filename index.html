@@ -4055,8 +4055,17 @@ function handleSwipeGesture(currentPage, touchEndX, touchEndY) {
 // Функция для показа страницы товаров
 function showProductsPage() {
   productsPageVisible = true;
+  bottomNav.style.transition = 'transform 0.4s cubic-bezier(0.28, 0.11, 0.32, 1)';
   bottomNav.style.transform = 'translateY(100%)';
   productsPage.style.display = 'block';
+  productsPage.style.opacity = '0';
+  productsPage.style.transform = 'translateY(100%)';
+  productsPage.style.transition = 'transform 0.4s cubic-bezier(0.28, 0.11, 0.32, 1), opacity 0.3s';
+  
+  setTimeout(() => {
+    productsPage.style.opacity = '1';
+    productsPage.style.transform = 'translateY(0)';
+  }, 10);
   
   if (document.getElementById('productsFeed').children.length === 0) {
     loadProductsData();
@@ -4066,8 +4075,13 @@ function showProductsPage() {
 // Функция для скрытия страницы товаров
 function hideProductsPage() {
   productsPageVisible = false;
-  productsPage.style.display = 'none';
-  bottomNav.style.transform = 'translateY(0)';
+  productsPage.style.transform = 'translateY(100%)';
+  productsPage.style.opacity = '0';
+  
+  setTimeout(() => {
+    productsPage.style.display = 'none';
+    bottomNav.style.transform = 'translateY(0)';
+  }, 400);
 }
 
 // Обработчик начала касания
@@ -4116,7 +4130,7 @@ function handleTouchEnd(e) {
   const touchEndY = e.changedTouches[0].clientY;
   const diffY = touchEndY - touchStartY;
 
-  // Определяем текущую страницу
+// Определяем текущую страницу
   let currentPage = '';
   if (mainPage.style.display !== 'none') currentPage = 'main-page';
   else if (cabinetPage.style.display !== 'none') currentPage = 'cabinet-page';
@@ -4126,8 +4140,7 @@ function handleTouchEnd(e) {
   // Обрабатываем горизонтальные свайпы
   if (currentPage && currentPage !== 'treasure-page') {
     handleSwipeGesture(currentPage, touchEndX, touchEndY);
-
-}
+  }
   
   // Обработка свайпа вниз для закрытия товаров
   if (productsPageVisible && isVerticalSwipe && diffY > 100 && window.scrollY <= 0) {
